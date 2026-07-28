@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão de Imóveis — Imobiliária</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #1a3a5c;
+            --primary-light: #2a5a8c;
+            --primary-dark: #0f2440;
+            --accent: #e8a838;
+            --accent-hover: #d4952e;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e1;
+            --gray-400: #94a3b8;
+            --gray-500: #64748b;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-800: #1e293b;
+            --shadow: 0 1px 3px rgba(0,0,0,.1),0 1px 2px rgba(0,0,0,.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,.1),0 4px 6px -4px rgba(0,0,0,.1);
+            --radius: 12px;
+        }
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--gray-50);
+            color: var(--gray-800);
+            min-height: 100vh;
+        }
+        .login-screen {
+            display: flex; min-height: 100vh; align-items: center; justify-content: center;
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+        }
+        .login-screen.hidden { display: none; }
+        .login-card {
+            background: #fff; border-radius: var(--radius); padding: 40px 36px;
+            width: 100%; max-width: 400px; box-shadow: 0 25px 50px -12px rgba(0,0,0,.5);
+        }
+        .login-card h1 { font-size: 24px; font-weight: 800; text-align: center; margin-bottom: 4px; }
+        .login-card h1 span { color: var(--accent); }
+        .login-card .sub { text-align: center; color: var(--gray-500); font-size: 14px; margin-bottom: 28px; }
+        .login-card .form-group { margin-bottom: 16px; }
+        .login-card label { display: block; font-size: 13px; font-weight: 600; color: var(--gray-600); margin-bottom: 4px; }
+        .login-card input {
+            width: 100%; padding: 12px 14px; border: 2px solid var(--gray-200);
+            border-radius: 8px; font-size: 15px; font-family: inherit; outline: none; transition: .2s;
+        }
+        .login-card input:focus { border-color: var(--primary-light); }
+        .login-card .btn {
+            width: 100%; padding: 12px; background: var(--primary-light); color: #fff;
+            border: none; border-radius: 8px; font-size: 16px; font-weight: 700;
+            cursor: pointer; font-family: inherit; transition: .2s; margin-top: 8px;
+        }
+        .login-card .btn:hover { background: var(--primary); }
+        .login-card .login-error { color: var(--danger); font-size: 13px; text-align: center; margin-top: 12px; display: none; }
+        .app-container { display: none; }
+        .app-container.active { display: block; }
+        .header {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            color: #fff; padding: 0 24px; height: 64px;
+            display: flex; align-items: center; justify-content: space-between;
+            position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,.15);
+        }
+        .header-left { display: flex; align-items: center; gap: 12px; }
+        .header-logo { font-size: 20px; font-weight: 800; letter-spacing: -.5px; }
+        .header-logo span { color: var(--accent); }
+        .header-sub { font-size: 12px; color: rgba(255,255,255,.6); }
+        .header-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .header-btn {
+            background: rgba(255,255,255,.12); border: none; color: #fff;
+            padding: 8px 16px; border-radius: 8px; cursor: pointer;
+            font-size: 13px; font-weight: 500; transition: .2s; font-family: inherit;
+        }
+        .header-btn:hover { background: rgba(255,255,255,.2); }
+        .btn-novo { background: var(--accent) !important; color: var(--primary-dark) !important; font-weight: 700 !important; }
+        .btn-novo:hover { background: var(--accent-hover) !important; }
+        .main { max-width: 1200px; margin: 0 auto; padding: 24px 16px 80px; }
+        .search-section {
+            background: #fff; border-radius: var(--radius); padding: 20px 24px;
+            box-shadow: var(--shadow); margin-bottom: 24px;
+        }
+        .search-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+        .search-input-wrap { flex: 1; min-width: 240px; position: relative; }
+        .search-input-wrap svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--gray-400); }
+        .search-input {
+            width: 100%; padding: 12px 12px 12px 42px; border: 2px solid var(--gray-200);
+            border-radius: 8px; font-size: 15px; font-family: inherit; outline: none; transition: .2s;
+        }
+        .search-input:focus { border-color: var(--primary-light); }
+        .search-stats { font-size: 14px; color: var(--gray-500); white-space: nowrap; }
+        .filter-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--gray-100); }
+        .filter-btn {
+            padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 500;
+            border: 2px solid var(--gray-200); background: #fff; cursor: pointer;
+            transition: .2s; font-family: inherit; color: var(--gray-600);
+        }
+        .filter-btn:hover { border-color: var(--gray-400); }
+        .filter-btn.active { background: var(--primary-light); color: #fff; border-color: var(--primary-light); }
+        .filter-btn.active-residencial { background: #166534; color: #fff; border-color: #166534; }
+        .filter-btn.active-comercial { background: #1e40af; color: #fff; border-color: #1e40af; }
+        .property-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
+        .property-card {
+            background: #fff; border-radius: var(--radius); box-shadow: var(--shadow);
+            overflow: hidden; cursor: pointer; transition: .2s; border: 2px solid transparent;
+        }
+        .property-card:hover { box-shadow: var(--shadow-lg); border-color: var(--primary-light); transform: translateY(-2px); }
+        .card-img { width: 100%; height: 160px; object-fit: cover; background: var(--gray-100); }
+        .card-img-placeholder { width: 100%; height: 160px; background: var(--gray-100); display: flex; align-items: center; justify-content: center; color: var(--gray-400); font-size: 14px; }
+        .card-header { padding: 16px 20px 8px; display: flex; justify-content: space-between; align-items: flex-start; }
+        .card-address { font-weight: 600; font-size: 16px; line-height: 1.3; color: var(--gray-800); }
+        .card-neighborhood { font-size: 13px; color: var(--gray-500); margin-top: 2px; }
+        .card-cep { font-size: 12px; color: var(--gray-400); margin-top: 1px; }
+        .card-tipo {
+            display: inline-block; padding: 2px 10px; border-radius: 4px;
+            font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px;
+            margin-top: 4px;
+        }
+        .tipo-residencial { background: #dcfce7; color: #166534; }
+        .tipo-comercial { background: #dbeafe; color: #1e40af; }
+        .card-status { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+        .status-disponivel { background: #dcfce7; color: #166534; }
+        .status-alugado { background: #dbeafe; color: #1e40af; }
+        .status-indisponivel { background: #fef3c7; color: #92400e; }
+        .card-body { padding: 8px 20px 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+        .card-info { font-size: 13px; color: var(--gray-600); }
+        .card-info strong { color: var(--gray-800); }
+        .card-footer { padding: 10px 20px; background: var(--gray-50); border-top: 1px solid var(--gray-100); display: flex; justify-content: space-between; font-size: 13px; color: var(--gray-500); }
+        .vazio { grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: var(--gray-400); }
+        .vazio svg { margin-bottom: 12px; opacity: .4; }
+        .vazio h3 { font-size: 18px; color: var(--gray-500); }
+        .vazio p { font-size: 14px; }
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 200; align-items: center; justify-content: center; backdrop-filter: blur(4px); padding: 16px; }
+        .modal-overlay.active { display: flex; }
+        .modal { background: #fff; border-radius: var(--radius); width: 100%; max-width: 800px; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0,0,0,.25); animation: modalIn .25s ease; }
+        @keyframes modalIn { from { opacity: 0; transform: scale(.95) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+        .modal-header { padding: 20px 24px; border-bottom: 1px solid var(--gray-200); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: #fff; z-index: 1; border-radius: var(--radius) var(--radius) 0 0; }
+        .modal-header h2 { font-size: 20px; font-weight: 700; }
+        .modal-close { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--gray-400); padding: 4px 8px; border-radius: 6px; transition: .2s; }
+        .modal-close:hover { background: var(--gray-100); color: var(--gray-700); }
+        .modal-body { padding: 24px; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .form-grid .full { grid-column: 1 / -1; }
+        .form-group { display: flex; flex-direction: column; gap: 4px; }
+        .form-group label { font-size: 13px; font-weight: 600; color: var(--gray-600); }
+        .form-group input, .form-group select, .form-group textarea {
+            padding: 10px 12px; border: 2px solid var(--gray-200); border-radius: 8px;
+            font-size: 14px; font-family: inherit; outline: none; transition: .2s; background: #fff;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--primary-light); }
+        .form-group textarea { resize: vertical; min-height: 60px; }
+        .form-group .checkbox-row { display: flex; align-items: center; gap: 8px; padding: 8px 0; }
+        .form-group .checkbox-row input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--primary-light); }
+        .cep-row { display: flex; gap: 8px; align-items: center; }
+        .cep-row input { flex: 1; }
+        .btn-buscar-cep {
+            padding: 10px 16px; background: var(--primary-light); color: #fff;
+            border: none; border-radius: 8px; font-size: 13px; font-weight: 600;
+            cursor: pointer; transition: .2s; font-family: inherit; white-space: nowrap;
+        }
+        .btn-buscar-cep:hover { background: var(--primary); }
+        .btn-buscar-cep:disabled { background: var(--gray-300); cursor: not-allowed; }
+        .cep-loading { font-size: 12px; color: var(--gray-500); display: none; }
+        .cep-loading.active { display: inline; }
+        .field-highlight { animation: fieldPulse .6s ease; }
+        @keyframes fieldPulse { 0% { background: #fef3c7; } 100% { background: #fff; } }
+        .tipo-selector {
+            display: flex; gap: 12px; margin-bottom: 4px;
+        }
+        .tipo-option {
+            flex: 1; padding: 14px; border: 2px solid var(--gray-200); border-radius: 8px;
+            text-align: center; cursor: pointer; transition: .2s; font-weight: 600; font-size: 15px;
+            background: #fff;
+        }
+        .tipo-option:hover { border-color: var(--gray-400); }
+        .tipo-option.selected-residencial { border-color: #166534; background: #f0fdf4; color: #166534; }
+        .tipo-option.selected-comercial { border-color: #1e40af; background: #eff6ff; color: #1e40af; }
+        .tipo-option .tipo-icon { font-size: 24px; display: block; margin-bottom: 4px; }
+        .upload-area { border: 2px dashed var(--gray-300); border-radius: 8px; padding: 20px; text-align: center; cursor: pointer; transition: .2s; background: var(--gray-50); }
+        .upload-area:hover, .upload-area.dragover { border-color: var(--primary-light); background: #eff6ff; }
+        .upload-area p { font-size: 14px; color: var(--gray-500); margin-top: 8px; }
+        .upload-area .ext-label { font-size: 11px; color: var(--gray-400); margin-top: 4px; }
+        .upload-list { margin-top: 12px; display: flex; flex-direction: column; gap: 6px; }
+        .upload-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; background: #fff; border: 1px solid var(--gray-200); border-radius: 6px; font-size: 13px; }
+        .upload-item .file-info { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
+        .upload-item .file-info .file-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .upload-item .file-info .file-size { color: var(--gray-400); font-size: 11px; white-space: nowrap; }
+        .upload-item .file-category { padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; white-space: nowrap; }
+        .cat-planta { background: #dbeafe; color: #1e40af; }
+        .cat-matricula { background: #dcfce7; color: #166534; }
+        .cat-certidao { background: #fef3c7; color: #92400e; }
+        .cat-foto { background: #f3e8ff; color: #6b21a8; }
+        .cat-outro { background: var(--gray-100); color: var(--gray-600); }
+        .btn-remove-file { background: none; border: none; color: var(--gray-400); cursor: pointer; padding: 4px; font-size: 16px; transition: .2s; }
+        .btn-remove-file:hover { color: var(--danger); }
+        .detail-files { margin-top: 12px; }
+        .file-group { margin-bottom: 12px; }
+        .file-group-title { font-size: 13px; font-weight: 600; color: var(--gray-600); margin-bottom: 6px; }
+        .file-list-item { display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: #fff; border: 1px solid var(--gray-200); border-radius: 6px; margin-bottom: 4px; font-size: 13px; }
+        .file-list-item a { color: var(--primary-light); text-decoration: none; font-weight: 500; display: flex; align-items: center; gap: 6px; }
+        .file-list-item a:hover { text-decoration: underline; }
+        .file-list-item .file-size { color: var(--gray-400); font-size: 11px; }
+        .detail-photo-img { width: 100%; max-height: 300px; object-fit: cover; border-radius: 8px; background: var(--gray-100); }
+        .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .detail-item { background: var(--gray-50); border-radius: 8px; padding: 14px 16px; }
+        .detail-item .label { font-size: 11px; text-transform: uppercase; letter-spacing: .5px; font-weight: 600; color: var(--gray-500); margin-bottom: 4px; }
+        .detail-item .value { font-size: 15px; font-weight: 600; color: var(--gray-800); word-break: break-word; }
+        .detail-item .value.nao { color: var(--danger); }
+        .detail-item .value.sim { color: var(--success); }
+        .detail-item.full { grid-column: 1 / -1; }
+        .detail-actions { display: flex; gap: 8px; margin-top: 20px; flex-wrap: wrap; }
+        .btn { padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; border: none; cursor: pointer; transition: .2s; font-family: inherit; }
+        .btn-primary { background: var(--primary-light); color: #fff; }
+        .btn-primary:hover { background: var(--primary); }
+        .btn-danger { background: var(--danger); color: #fff; }
+        .btn-danger:hover { background: #dc2626; }
+        .btn-outline { background: transparent; border: 2px solid var(--gray-200); color: var(--gray-600); }
+        .btn-outline:hover { border-color: var(--gray-400); }
+        .btn-warning { background: var(--accent); color: var(--primary-dark); }
+        .btn-warning:hover { background: var(--accent-hover); }
+        .confirm-dialog { text-align: center; padding: 24px 0; }
+        .confirm-dialog p { font-size: 16px; margin-bottom: 20px; color: var(--gray-600); }
+        .confirm-dialog .btn-group { display: flex; gap: 12px; justify-content: center; }
+        .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 300; display: flex; flex-direction: column; gap: 8px; }
+        .toast { background: var(--gray-800); color: #fff; padding: 14px 20px; border-radius: 10px; font-size: 14px; font-weight: 500; box-shadow: var(--shadow-lg); animation: toastIn .3s ease; }
+        .toast.success { background: #166534; }
+        .toast.error { background: #991b1b; }
+        .toast.warning { background: #92400e; }
+        @keyframes toastIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+        .gs-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .gs-connected { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+        .gs-disconnected { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+        .gs-syncing { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
+        #storageIndicator { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: var(--gray-400); padding: 4px 8px; background: var(--gray-50); border-radius: 6px; }
+        @media (max-width: 768px) {
+            .form-grid, .detail-grid { grid-template-columns: 1fr; }
+            .property-grid { grid-template-columns: 1fr; }
+            .header { padding: 0 16px; flex-wrap: wrap; height: auto; padding: 12px 16px; gap: 8px; }
+            .header-logo { font-size: 17px; }
+            .header-sub { display: none; }
+            .search-row { flex-direction: column; }
+            .search-input-wrap { width: 100%; }
+            .modal { max-width: 100%; margin: 8px; }
+            .card-body { grid-template-columns: 1fr; }
+            .header-btn { font-size: 12px; padding: 6px 10px; }
+            .cep-row { flex-direction: column; }
+            .btn-buscar-cep { width: 100%; justify-content: center; }
+            .tipo-selector { flex-direction: column; }
+        }
+        .modal::-webkit-scrollbar { width: 6px; }
+        .modal::-webkit-scrollbar-thumb { background: var(--gray-300); border-radius: 3px; }
+        .modal::-webkit-scrollbar-track { background: transparent; }
+    </style>
+</head>
+<body>
+
+<div class="login-screen" id="loginScreen">
+    <div class="login-card">
+        <h1>IMÓVEIS <span>•</span> PRO</h1>
+        <p class="sub">Sistema de Gestão Imobiliária</p>
+        <div class="form-group">
+            <label>Usuário</label>
+            <input type="text" id="loginUser" value="admin">
+        </div>
+        <div class="form-group">
+            <label>Senha</label>
+            <input type="password" id="loginPass" onkeydown="if(event.key==='Enter') fazerLogin()">
+        </div>
+        <button class="btn" onclick="fazerLogin()">Entrar</button>
+        <p class="login-error" id="loginError">Usuário ou senha incorretos!</p>
+    </div>
+</div>
+
+<div class="app-container" id="appContainer">
+    <div class="header">
+        <div class="header-left">
+            <div>
+                <div class="header-logo">IMÓVEIS <span>•</span> PRO</div>
+                <div class="header-sub">Gestão Imobiliária</div>
+            </div>
+        </div>
+        <div class="header-right">
+            <span class="gs-badge gs-connected" id="gsStatus">☁️ Cloud OK</span>
+            <span id="storageIndicator">💾 0 KB</span>
+            <button class="header-btn" onclick="exportarDados()">📥 CSV</button>
+            <button class="header-btn btn-novo" onclick="abrirCadastro()">+ Novo</button>
+            <button class="header-btn" onclick="fazerLogout()" style="font-size:12px">🚪 Sair</button>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="search-section">
+            <div class="search-row">
+                <div class="search-input-wrap">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                    <input type="text" class="search-input" id="searchInput" placeholder="Buscar por endereço, bairro, CEP ou inquilino..." oninput="renderLista()">
+                </div>
+                <span class="search-stats" id="searchStats">0 imóveis</span>
+            </div>
+            <div class="filter-row">
+                <span style="font-size:13px;font-weight:600;color:var(--gray-600)">Filtrar por tipo:</span>
+                <button class="filter-btn active" id="filterTodos" onclick="setFiltroTipo('todos')">🏠 Todos</button>
+                <button class="filter-btn" id="filterResidencial" onclick="setFiltroTipo('residencial')">🏡 Residencial</button>
+                <button class="filter-btn" id="filterComercial" onclick="setFiltroTipo('comercial')">🏢 Comercial</button>
+            </div>
+            <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--gray-100);display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:13px;color:var(--gray-500)">
+                <span>📋 Dados salvos na nuvem (Google Sheets)</span>
+                <a href="https://docs.google.com/spreadsheets/d/19NvTnjjFP5EcdjGyLDX2qqW4HQrfdKusp0phCKKTSxA/edit" target="_blank" style="color:var(--primary-light);font-weight:500;text-decoration:none;">Abrir Planilha →</a>
+                <span style="font-size:11px;color:var(--gray-400)">📎 Arquivos ficam salvos no navegador</span>
+            </div>
+        </div>
+        <div class="property-grid" id="propertyGrid"></div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modalCadastro">
+    <div class="modal">
+        <div class="modal-header">
+            <h2 id="modalCadastroTitle">Novo Imóvel</h2>
+            <button class="modal-close" onclick="fecharModal('modalCadastro')">✕</button>
+        </div>
+        <div class="modal-body">
+            <form id="formImovel" onsubmit="salvarImovel(event)">
+                <input type="hidden" id="editId" value="">
+                <input type="hidden" id="fTipo" value="residencial">
+
+                <!-- SELEÇÃO DE TIPO -->
+                <div class="form-group full" style="margin-bottom:8px">
+                    <label>Tipo de Imóvel</label>
+                    <div class="tipo-selector">
+                        <div class="tipo-option selected-residencial" id="tipoResidencial" onclick="selecionarTipo('residencial')">
+                            <span class="tipo-icon">🏡</span>
+                            Residencial
+                        </div>
+                        <div class="tipo-option" id="tipoComercial" onclick="selecionarTipo('comercial')">
+                            <span class="tipo-icon">🏢</span>
+                            Comercial
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group full">
+                        <label>CEP</label>
+                        <div class="cep-row">
+                            <input type="text" id="fCep" placeholder="Digite o CEP" onblur="buscarCep()" maxlength="9">
+                            <button type="button" class="btn-buscar-cep" id="btnBuscarCep" onclick="buscarCep()">🔍 Buscar</button>
+                            <span class="cep-loading" id="cepLoading">Buscando...</span>
+                        </div>
+                    </div>
+                    <div class="form-group full">
+                        <label>Endereço completo *</label>
+                        <input type="text" id="fEndereco" required placeholder="Rua, número">
+                    </div>
+                    <div class="form-group">
+                        <label>Bairro *</label>
+                        <input type="text" id="fBairro" required placeholder="Ex: Vila Regente Feijó">
+                    </div>
+                    <div class="form-group">
+                        <label>Cidade</label>
+                        <input type="text" id="fCidade" placeholder="Cidade">
+                    </div>
+                    <div class="form-group">
+                        <label>Estado</label>
+                        <input type="text" id="fEstado" placeholder="UF" maxlength="2">
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select id="fStatus">
+                            <option value="disponivel">Disponível</option>
+                            <option value="alugado">Alugado</option>
+                            <option value="indisponivel">Indisponível</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Data de Cadastro</label>
+                        <input type="date" id="fDataCadastro">
+                    </div>
+                    <div class="form-group">
+                        <label>Valor do Aluguel (R$)</label>
+                        <input type="text" id="fValorAluguel" placeholder="Ex: 2.500,00">
+                    </div>
+                    <div class="form-group">
+                        <label>Nº Contribuinte</label>
+                        <input type="text" id="fContribuinte" placeholder="Número de contribuinte">
+                    </div>
+                    <div class="form-group">
+                        <label>Área (m²)</label>
+                        <input type="number" id="fArea" step="0.01" placeholder="0,00">
+                    </div>
+                    <div class="form-group">
+                        <label>IPTU (R$)</label>
+                        <input type="text" id="fIptu" placeholder="Valor do IPTU">
+                    </div>
+                    <div class="form-group">
+                        <label>Registro ENEL</label>
+                        <input type="text" id="fEnel" placeholder="Nº registro ENEL">
+                    </div>
+                    <div class="form-group">
+                        <label>Registro Sabesp</label>
+                        <input type="text" id="fSabesp" placeholder="Nº registro Sabesp">
+                    </div>
+                    <div class="form-group">
+                        <label>Matrícula</label>
+                        <input type="text" id="fMatricula" placeholder="Nº da matrícula">
+                    </div>
+                    <div class="form-group">
+                        <label>AVCB / Bombeiros</label>
+                        <input type="text" id="fAvcb" placeholder="Nº AVCB / validade">
+                    </div>
+                    <div class="form-group">
+                        <label>Seguros</label>
+                        <input type="text" id="fSeguros" placeholder="Apolice / seguradora">
+                    </div>
+                    <div class="form-group">
+                        <label>Inquilino</label>
+                        <input type="text" id="fInquilino" placeholder="Nome do inquilino">
+                    </div>
+                    <div class="form-group">
+                        <label>Vigência</label>
+                        <input type="text" id="fVigencia" placeholder="Ex: 01/2025 a 12/2025">
+                    </div>
+                    <div class="form-group full">
+                        <div class="checkbox-row">
+                            <input type="checkbox" id="fCaucao">
+                            <label for="fCaucao" style="font-size:14px;font-weight:500;cursor:pointer">Possui Caução?</label>
+                        </div>
+                    </div>
+                    <div class="form-group full">
+                        <label>Plantas / Observações</label>
+                        <textarea id="fPlantas" placeholder="Informações adicionais..."></textarea>
+                    </div>
+
+                    <div class="form-group full" style="border-top:1px solid var(--gray-200);padding-top:16px;margin-top:8px">
+                        <label style="font-size:15px;font-weight:700;color:var(--gray-800)">📎 Arquivos Anexados</label>
+                        <p style="font-size:12px;color:var(--gray-500);margin-bottom:12px">
+                            Anexe plantas, matrícula, certidões e fotos. 
+                            <strong style="color:var(--gray-600)">Formatos: PDF, PNG, JPG (máx 2MB)</strong>
+                        </p>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+                            <button type="button" class="btn btn-outline" onclick="abrirFileSelector('planta')" style="justify-content:center">📐 + Planta</button>
+                            <button type="button" class="btn btn-outline" onclick="abrirFileSelector('matricula')" style="justify-content:center">🔑 + Matrícula</button>
+                            <button type="button" class="btn btn-outline" onclick="abrirFileSelector('certidao')" style="justify-content:center">📜 + Certidão</button>
+                            <button type="button" class="btn btn-outline" onclick="abrirFileSelector('foto')" style="justify-content:center">📷 + Foto</button>
+                        </div>
+                        <button type="button" class="btn btn-outline" onclick="abrirFileSelector('outro')" style="justify-content:center;width:100%">📄 + Outro arquivo</button>
+                        <div class="upload-list" id="fileList"></div>
+                        <input type="file" id="fileInput" multiple accept=".pdf,.png,.jpg,.jpeg" style="display:none">
+                    </div>
+                </div>
+                <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid var(--gray-200)">
+                    <button type="button" class="btn btn-outline" onclick="fecharModal('modalCadastro')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">💾 Salvar Imóvel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modalVisualizar">
+    <div class="modal">
+        <div class="modal-header">
+            <h2 id="detailTitle">Detalhes do Imóvel</h2>
+            <button class="modal-close" onclick="fecharModal('modalVisualizar')">✕</button>
+        </div>
+        <div class="modal-body" id="detailBody"></div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modalConfirmar">
+    <div class="modal" style="max-width:420px">
+        <div class="modal-body">
+            <div class="confirm-dialog" id="confirmDialog"></div>
+        </div>
+    </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+    const AUTH_USER = 'admin';
+    const AUTH_PASS = 'imob2026';
+    const STORAGE_KEY = 'imob_pro_tipo';
+    const GS_SPREADSHEET_ID = '19NvTnjjFP5EcdjGyLDX2qqW4HQrfdKusp0phCKKTSxA';
+    const GS_SHEET_NAME = 'Imoveis';
+
+    let filtroTipoAtual = 'todos';
+
+    function carregarImoveis() {
+        try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+        catch { return []; }
+    }
+    function salvarImoveis(d) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(d));
+        atualizarStorageIndicator();
+    }
+    function gerarId() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+    function hoje() { return new Date().toISOString().split('T')[0]; }
+
+    function fazerLogin() {
+        if (document.getElementById('loginUser').value === AUTH_USER && document.getElementById('loginPass').value === AUTH_PASS) {
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('appContainer').classList.add('active');
+            atualizarStorageIndicator();
+            renderLista();
+        } else {
+            document.getElementById('loginError').style.display = 'block';
+        }
+    }
+    function fazerLogout() {
+        document.getElementById('loginScreen').classList.remove('hidden');
+        document.getElementById('appContainer').classList.remove('active');
+        document.getElementById('loginPass').value = '';
+        document.getElementById('loginError').style.display = 'none';
+    }
+    function escapeHtml(t) { if(!t) return ''; const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
+
+    function atualizarStorageIndicator() {
+        try {
+            const total = new Blob([localStorage.getItem(STORAGE_KEY) || '']).size;
+            document.getElementById('storageIndicator').textContent = '💾 ' + (total > 1024 ? (total/1024).toFixed(1)+' KB' : total+' B');
+        } catch(e) {}
+    }
+
+    // ==================== TIPO ====================
+    function selecionarTipo(tipo) {
+        document.getElementById('fTipo').value = tipo;
+        document.getElementById('tipoResidencial').className = 'tipo-option' + (tipo === 'residencial' ? ' selected-residencial' : '');
+        document.getElementById('tipoComercial').className = 'tipo-option' + (tipo === 'comercial' ? ' selected-comercial' : '');
+    }
+
+    function setFiltroTipo(tipo) {
+        filtroTipoAtual = tipo;
+        document.getElementById('filterTodos').className = 'filter-btn' + (tipo === 'todos' ? ' active' : '');
+        document.getElementById('filterResidencial').className = 'filter-btn' + (tipo === 'residencial' ? ' active-residencial' : '');
+        document.getElementById('filterComercial').className = 'filter-btn' + (tipo === 'comercial' ? ' active-comercial' : '');
+        renderLista();
+    }
+
+    // ==================== BUSCA CEP ====================
+    async function buscarCep() {
+        const cep = document.getElementById('fCep').value.replace(/\D/g, '');
+        if (cep.length !== 8) { mostrarToast('Digite um CEP válido.', 'error'); return; }
+        document.getElementById('btnBuscarCep').disabled = true;
+        document.getElementById('cepLoading').classList.add('active');
+        try {
+            const r = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+            const d = await r.json();
+            if (d.erro) { mostrarToast('CEP não encontrado.', 'error'); return; }
+            document.getElementById('fEndereco').value = (d.logradouro||'') + ', ';
+            document.getElementById('fBairro').value = d.bairro||'';
+            document.getElementById('fCidade').value = d.localidade||'';
+            document.getElementById('fEstado').value = d.uf||'';
+            ['fEndereco','fBairro','fCidade','fEstado'].forEach(id => {
+                const el = document.getElementById(id);
+                el.classList.remove('field-highlight');
+                void el.offsetWidth;
+                el.classList.add('field-highlight');
+            });
+            const end = document.getElementById('fEndereco');
+            end.focus();
+            end.setSelectionRange(end.value.length, end.value.length);
+            mostrarToast('Endereço encontrado!', 'success');
+        } catch(e) { mostrarToast('Erro ao buscar CEP.', 'error'); }
+        finally {
+            document.getElementById('btnBuscarCep').disabled = false;
+            document.getElementById('cepLoading').classList.remove('active');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const ci = document.getElementById('fCep');
+        if(ci) ci.addEventListener('input', function() {
+            let v = this.value.replace(/\D/g,'');
+            if(v.length>5) v = v.slice(0,5)+'-'+v.slice(5,8);
+            this.value = v;
+        });
+    });
+
+    // ==================== FILE UPLOAD ====================
+    let pendingCategory = 'outro';
+    let pendingFiles = [];
+
+    function abrirFileSelector(categoria) {
+        pendingCategory = categoria;
+        document.getElementById('fileInput').click();
+    }
+
+    document.getElementById('fileInput').addEventListener('change', function(e) {
+        const files = Array.from(e.target.files);
+        const maxSize = 2 * 1024 * 1024;
+        for (const file of files) {
+            if (file.size > maxSize) { mostrarToast(`Arquivo muito grande: ${file.name}. Máx 2MB.`, 'error'); continue; }
+            const ext = file.name.split('.').pop().toLowerCase();
+            if (!['pdf','png','jpg','jpeg'].includes(ext)) { mostrarToast(`Formato não suportado: ${file.name}.`, 'error'); continue; }
+            pendingFiles.push({ file, name: file.name, size: file.size, category: pendingCategory });
+        }
+        renderFileList();
+        e.target.value = '';
+    });
+
+    function renderFileList() {
+        const container = document.getElementById('fileList');
+        if (pendingFiles.length === 0) { container.innerHTML = '<div style="font-size:13px;color:var(--gray-400);text-align:center;padding:8px">Nenhum arquivo anexado</div>'; return; }
+        const catLabel = { planta:'📐 Planta', matricula:'🔑 Matrícula', certidao:'📜 Certidão', foto:'📷 Foto', outro:'📄 Documento' };
+        const catClass = { planta:'cat-planta', matricula:'cat-matricula', certidao:'cat-certidao', foto:'cat-foto', outro:'cat-outro' };
+        container.innerHTML = pendingFiles.map((f, i) => `
+            <div class="upload-item">
+                <div class="file-info">
+                    <span class="file-category ${catClass[f.category]}">${catLabel[f.category]||'📄'}</span>
+                    <span class="file-name">${escapeHtml(f.name)}</span>
+                    <span class="file-size">${(f.size/1024).toFixed(1)} KB</span>
+                </div>
+                <button type="button" class="btn-remove-file" onclick="removerFile(${i})">✕</button>
+            </div>
+        `).join('');
+    }
+    function removerFile(index) { pendingFiles.splice(index, 1); renderFileList(); }
+
+    // ==================== RENDER ====================
+    function renderLista() {
+        let imoveis = carregarImoveis();
+
+        // Filtro por tipo
+        if (filtroTipoAtual !== 'todos') {
+            imoveis = imoveis.filter(i => (i.tipo || 'residencial') === filtroTipoAtual);
+        }
+
+        const busca = document.getElementById('searchInput').value.toLowerCase().trim();
+        const grid = document.getElementById('propertyGrid');
+        const stats = document.getElementById('searchStats');
+        const total = carregarImoveis().length;
+        const filtrados = busca ? imoveis.filter(i =>
+            (i.endereco||'').toLowerCase().includes(busca) ||
+            (i.bairro||'').toLowerCase().includes(busca) ||
+            (i.cep||'').toLowerCase().includes(busca) ||
+            (i.cidade||'').toLowerCase().includes(busca) ||
+            (i.inquilino||'').toLowerCase().includes(busca)
+        ) : imoveis;
+        stats.textContent = `${filtrados.length} de ${total} imóvel${total!==1?'is':''}`;
+        if (filtrados.length === 0) {
+            grid.innerHTML = `<div class="vazio"><svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><h3>${busca ? 'Nenhum imóvel encontrado' : 'Nenhum imóvel cadastrado'}</h3><p>${busca ? 'Tente outro termo.' : 'Clique em "+ Novo" para começar.'}</p></div>`;
+            return;
+        }
+        grid.innerHTML = filtrados.map(im => {
+            const sl = {disponivel:'Disponível',alugado:'Alugado',indisponivel:'Indisponível'};
+            const sc = 'status-'+(im.status||'disponivel');
+            const tipo = im.tipo || 'residencial';
+            const tipoLabel = tipo === 'residencial' ? '🏡 Residencial' : '🏢 Comercial';
+            const tipoClass = tipo === 'residencial' ? 'tipo-residencial' : 'tipo-comercial';
+            const fotos = (im.files||[]).filter(f => f.category === 'foto');
+            const fotoSrc = fotos.length > 0 && fotos[0].data ? fotos[0].data : '';
+            const fileCount = (im.files||[]).length;
+            const fh = fotoSrc ? `<img class="card-img" src="${fotoSrc}" alt="Foto" style="width:100%;height:160px;object-fit:cover">` : `<div class="card-img-placeholder">📷 Sem foto</div>`;
+            const cidadeStr = im.cidade ? (im.estado ? im.cidade+'/'+im.estado : im.cidade) : '';
+            return `<div class="property-card" onclick="visualizar('${im.id}')">
+                ${fh}
+                <div class="card-header">
+                    <div>
+                        <div class="card-address">${escapeHtml(im.endereco||'Sem endereço')}</div>
+                        <div class="card-neighborhood">${escapeHtml(im.bairro||'')}${cidadeStr ? ' · '+cidadeStr : ''}</div>
+                        <div class="card-cep">${im.cep ? 'CEP: '+escapeHtml(im.cep) : ''} ${fileCount > 0 ? '· 📎 '+fileCount+' arquivo'+(fileCount>1?'s':'') : ''}</div>
+                        <span class="card-tipo ${tipoClass}">${tipoLabel}</span>
+                    </div>
+                    <span class="card-status ${sc}">${sl[im.status]||'Disponível'}</span>
+                </div>
+                <div class="card-body">
+                    <div class="card-info">📐 <strong>${im.area||'-'}</strong> m²</div>
+                    <div class="card-info">💰 Aluguel: <strong>${im.valorAluguel ? 'R$ '+im.valorAluguel : '-'}</strong></div>
+                    <div class="card-info">🏷️ IPTU: <strong>${im.iptu||'-'}</strong></div>
+                    <div class="card-info">👤 ${im.inquilino||'Sem inquilino'}</div>
+                </div>
+                <div class="card-footer">
+                    <span>📅 ${im.dataCadastro||'Sem data'}</span>
+                    <span>${im.matricula ? '🔑 Matr: '+escapeHtml(im.matricula) : 'Sem matrícula'}</span>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    // ==================== CRUD ====================
+    function abrirCadastro(id) {
+        pendingFiles = [];
+        document.getElementById('editId').value = '';
+        document.getElementById('modalCadastroTitle').textContent = 'Novo Imóvel';
+        document.getElementById('formImovel').reset();
+        document.getElementById('fCaucao').checked = false;
+        document.getElementById('fDataCadastro').value = hoje();
+        selecionarTipo('residencial');
+        renderFileList();
+        if (id) {
+            const im = carregarImoveis().find(i => i.id === id);
+            if (im) {
+                document.getElementById('modalCadastroTitle').textContent = 'Editar Imóvel';
+                document.getElementById('editId').value = id;
+                selecionarTipo(im.tipo || 'residencial');
+                document.getElementById('fEndereco').value = im.endereco||'';
+                document.getElementById('fBairro').value = im.bairro||'';
+                document.getElementById('fCep').value = im.cep||'';
+                document.getElementById('fCidade').value = im.cidade||'';
+                document.getElementById('fEstado').value = im.estado||'';
+                document.getElementById('fStatus').value = im.status||'disponivel';
+                document.getElementById('fDataCadastro').value = im.dataCadastro||hoje();
+                document.getElementById('fValorAluguel').value = im.valorAluguel||'';
+                document.getElementById('fContribuinte').value = im.contribuinte||'';
+                document.getElementById('fArea').value = im.area||'';
+                document.getElementById('fIptu').value = im.iptu||'';
+                document.getElementById('fEnel').value = im.enel||'';
+                document.getElementById('fSabesp').value = im.sabesp||'';
+                document.getElementById('fMatricula').value = im.matricula||'';
+                document.getElementById('fAvcb').value = im.avcb||'';
+                document.getElementById('fSeguros').value = im.seguros||'';
+                document.getElementById('fInquilino').value = im.inquilino||'';
+                document.getElementById('fVigencia').value = im.vigencia||'';
+                document.getElementById('fCaucao').checked = !!im.caucao;
+                document.getElementById('fPlantas').value = im.plantas||'';
+                pendingFiles = (im.files || []).map(f => ({ ...f, file: null }));
+                renderFileList();
+            }
+        }
+        abrirModal('modalCadastro');
+    }
+
+    async function salvarImovel(e) {
+        e.preventDefault();
+        const id = document.getElementById('editId').value;
+        const imoveis = carregarImoveis();
+        const filesData = [];
+        for (const pf of pendingFiles) {
+            if (pf.data) { filesData.push({ name: pf.name, size: pf.size, category: pf.category, data: pf.data, type: pf.type }); }
+            else if (pf.file) {
+                try {
+                    const data = await fileToBase64(pf.file);
+                    filesData.push({ name: pf.name, size: pf.size, category: pf.category, data, type: pf.file.type });
+                } catch(err) { mostrarToast(`Erro ao processar ${pf.name}`, 'error'); }
+            }
+        }
+        const d = {
+            tipo: document.getElementById('fTipo').value,
+            endereco: document.getElementById('fEndereco').value.trim(),
+            bairro: document.getElementById('fBairro').value.trim(),
+            cep: document.getElementById('fCep').value.trim(),
+            cidade: document.getElementById('fCidade').value.trim(),
+            estado: document.getElementById('fEstado').value.trim().toUpperCase(),
+            status: document.getElementById('fStatus').value,
+            dataCadastro: document.getElementById('fDataCadastro').value,
+            valorAluguel: document.getElementById('fValorAluguel').value.trim(),
+            contribuinte: document.getElementById('fContribuinte').value.trim(),
+            area: document.getElementById('fArea').value,
+            iptu: document.getElementById('fIptu').value.trim(),
+            enel: document.getElementById('fEnel').value.trim(),
+            sabesp: document.getElementById('fSabesp').value.trim(),
+            matricula: document.getElementById('fMatricula').value.trim(),
+            avcb: document.getElementById('fAvcb').value.trim(),
+            seguros: document.getElementById('fSeguros').value.trim(),
+            inquilino: document.getElementById('fInquilino').value.trim(),
+            vigencia: document.getElementById('fVigencia').value.trim(),
+            caucao: document.getElementById('fCaucao').checked,
+            plantas: document.getElementById('fPlantas').value.trim(),
+            files: filesData,
+        };
+        if (id) {
+            const idx = imoveis.findIndex(i => i.id === id);
+            if (idx >= 0) { imoveis[idx] = { ...imoveis[idx], ...d }; }
+            mostrarToast('Imóvel atualizado!', 'success');
+        } else {
+            d.id = gerarId();
+            d.criadoEm = new Date().toISOString();
+            if (!d.dataCadastro) d.dataCadastro = hoje();
+            imoveis.unshift(d);
+            mostrarToast('Imóvel cadastrado!', 'success');
+        }
+        try { salvarImoveis(imoveis); }
+        catch(e) { mostrarToast('Espaço insuficiente. Remova arquivos antigos.', 'error'); return; }
+        fecharModal('modalCadastro');
+        renderLista();
+    }
+
+    function fileToBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+    }
+
+    function visualizar(id) {
+        const im = carregarImoveis().find(i => i.id === id);
+        if (!im) return;
+        document.getElementById('detailTitle').textContent = im.endereco || 'Detalhes do Imóvel';
+        const sn = v => v ? '<span class="value sim">✅ Sim</span>' : '<span class="value nao">❌ Não</span>';
+        const cidadeStr = im.cidade ? (im.estado ? im.cidade+'/'+im.estado : im.cidade) : '—';
+        const tipo = im.tipo || 'residencial';
+        const tipoLabel = tipo === 'residencial' ? '🏡 Residencial' : '🏢 Comercial';
+        const fotos = (im.files||[]).filter(f => f.category === 'foto');
+        const fotosHtml = fotos.map(f => `<img class="detail-photo-img" src="${f.data}" alt="${escapeHtml(f.name)}" style="margin-bottom:8px">`).join('');
+        const outros = (im.files||[]).filter(f => f.category !== 'foto');
+        const catLabel = { planta:'📐 Plantas', matricula:'🔑 Matrícula', certidao:'📜 Certidões', outro:'📄 Documentos' };
+        const grouped = {};
+        outros.forEach(f => { const g = f.category||'outro'; if(!grouped[g]) grouped[g]=[]; grouped[g].push(f); });
+        let filesHtml = '';
+        for (const [cat, arr] of Object.entries(grouped)) {
+            filesHtml += `<div class="file-group"><div class="file-group-title">${catLabel[cat]||'📄 Documentos'}</div>`;
+            arr.forEach(f => {
+                const isPdf = f.type === 'application/pdf' || f.name?.toLowerCase().endsWith('.pdf');
+                const icon = isPdf ? '📄' : '📎';
+                filesHtml += `<div class="file-list-item">${icon} <a href="${f.data}" target="_blank" download="${escapeHtml(f.name)}">${escapeHtml(f.name)}</a> <span class="file-size">${(f.size/1024).toFixed(1)} KB</span></div>`;
+            });
+            filesHtml += `</div>`;
+        }
+        if (fotosHtml) filesHtml = `<div class="file-group"><div class="file-group-title">📷 Fotos</div>${fotosHtml}</div>` + filesHtml;
+        const hasFiles = (im.files||[]).length > 0;
+        document.getElementById('detailBody').innerHTML = `
+            <div class="detail-grid">
+                <div class="detail-item full"><div class="label">Endereço</div><div class="value">${escapeHtml(im.endereco||'—')}</div></div>
+                <div class="detail-item"><div class="label">Tipo</div><div class="value">${tipoLabel}</div></div>
+                <div class="detail-item"><div class="label">Bairro</div><div class="value">${escapeHtml(im.bairro||'—')}</div></div>
+                <div class="detail-item"><div class="label">CEP</div><div class="value">${escapeHtml(im.cep)||'—'}</div></div>
+                <div class="detail-item"><div class="label">Cidade/UF</div><div class="value">${cidadeStr}</div></div>
+                <div class="detail-item"><div class="label">Status</div><div class="value">${{disponivel:'🟢 Disponível',alugado:'🔵 Alugado',indisponivel:'🟡 Indisponível'}[im.status]||'—'}</div></div>
+                <div class="detail-item"><div class="label">Data de Cadastro</div><div class="value">${im.dataCadastro ? new Date(im.dataCadastro+'T12:00:00').toLocaleDateString('pt-BR') : '—'}</div></div>
+                <div class="detail-item"><div class="label">Valor do Aluguel</div><div class="value">${im.valorAluguel ? 'R$ '+escapeHtml(im.valorAluguel) : '—'}</div></div>
+                <div class="detail-item"><div class="label">Nº Contribuinte</div><div class="value">${escapeHtml(im.contribuinte)||'—'}</div></div>
+                <div class="detail-item"><div class="label">Área (m²)</div><div class="value">${im.area ? im.area+' m²' : '—'}</div></div>
+                <div class="detail-item"><div class="label">IPTU</div><div class="value">${im.iptu ? 'R$ '+escapeHtml(im.iptu) : '—'}</div></div>
+                <div class="detail-item"><div class="label">Registro ENEL</div><div class="value">${escapeHtml(im.enel)||'—'}</div></div>
+                <div class="detail-item"><div class="label">Registro Sabesp</div><div class="value">${escapeHtml(im.sabesp)||'—'}</div></div>
+                <div class="detail-item"><div class="label">Matrícula</div><div class="value">${escapeHtml(im.matricula)||'—'}</div></div>
+                <div class="detail-item"><div class="label">AVCB / Bombeiros</div><div class="value">${escapeHtml(im.avcb)||'—'}</div></div>
+                <div class="detail-item"><div class="label">Seguros</div><div class="value">${escapeHtml(im.seguros)||'—'}</div></div>
+                <div class="detail-item"><div class="label">Inquilino</div><div class="value">${escapeHtml(im.inquilino)||'—'}</div></div>
+                <div class="detail-item"><div class="label">Vigência</div><div class="value">${escapeHtml(im.vigencia)||'—'}</div></div>
+                <div class="detail-item"><div class="label">Caução</div><div class="value">${sn(im.caucao)}</div></div>
+                <div class="detail-item full"><div class="label">Plantas / Obs.</div><div class="value">${escapeHtml(im.plantas)||'—'}</div></div>
+                ${hasFiles ? `<div class="detail-item full"><div class="label">📎 Arquivos Anexados (${(im.files||[]).length})</div><div class="detail-files">${filesHtml}</div></div>` : ''}
+            </div>
+            <div class="detail-actions">
+                <button class="btn btn-warning" onclick="fecharModal('modalVisualizar');abrirCadastro('${im.id}')">✏️ Editar</button>
+                <button class="btn btn-danger" onclick="confirmarExclusao('${im.id}')">🗑️ Excluir</button>
+                <button class="btn btn-outline" onclick="fecharModal('modalVisualizar')">Fechar</button>
+            </div>`;
+        abrirModal('modalVisualizar');
+    }
+
+    function confirmarExclusao(id) {
+        const im = carregarImoveis().find(i => i.id === id);
+        document.getElementById('confirmDialog').innerHTML = `<p>Tem certeza que deseja excluir<br><strong>${escapeHtml(im?.endereco||'')}</strong>?</p><div class="btn-group"><button class="btn btn-outline" onclick="fecharModal('modalConfirmar')">Cancelar</button><button class="btn btn-danger" onclick="excluirImovel('${id}')">Sim, Excluir</button></div>`;
+        abrirModal('modalConfirmar');
+    }
+    function excluirImovel(id) {
+        let im = carregarImoveis().filter(i => i.id !== id);
+        salvarImoveis(im);
+        fecharModal('modalConfirmar'); fecharModal('modalVisualizar'); renderLista();
+        mostrarToast('Imóvel excluído.', 'success');
+    }
+    function abrirModal(id) { document.getElementById(id).classList.add('active'); document.body.style.overflow = 'hidden'; }
+    function fecharModal(id) { document.getElementById(id).classList.remove('active'); document.body.style.overflow = ''; }
+    document.querySelectorAll('.modal-overlay').forEach(el => { el.addEventListener('click', e => { if(e.target===el){el.classList.remove('active');document.body.style.overflow='';}}); });
+    document.addEventListener('keydown', e => { if(e.key==='Escape'){document.querySelectorAll('.modal-overlay.active').forEach(el=>{el.classList.remove('active');});document.body.style.overflow='';} });
+    function mostrarToast(msg, tipo) {
+        const c = document.getElementById('toastContainer');
+        const t = document.createElement('div');
+        t.className = 'toast'+(tipo?' '+tipo:'');
+        t.innerHTML = ({success:'✅',error:'❌',warning:'⚠️'}[tipo]||'ℹ️')+' '+msg;
+        c.appendChild(t);
+        setTimeout(()=>{t.style.opacity='0';t.style.transform='translateX(20px)';t.style.transition='.3s';},3000);
+        setTimeout(()=>t.remove(),3500);
+    }
+
+    function exportarDados() {
+        const imoveis = carregarImoveis();
+        if (!imoveis.length) { mostrarToast('Nenhum imóvel.', 'error'); return; }
+        const h = ['Tipo','Endereço','Bairro','CEP','Cidade','UF','Status','Data Cadastro','Valor Aluguel','Nº Contribuinte','Área (m²)','IPTU','ENEL','Sabesp','Matrícula','AVCB','Seguros','Inquilino','Vigência','Caução','Plantas','Qtd Arquivos'];
+        const r = imoveis.map(i => [(i.tipo||'residencial')==='residencial'?'Residencial':'Comercial',i.endereco||'',i.bairro||'',i.cep||'',i.cidade||'',i.estado||'',i.status||'',i.dataCadastro||'',i.valorAluguel||'',i.contribuinte||'',i.area||'',i.iptu||'',i.enel||'',i.sabesp||'',i.matricula||'',i.avcb||'',i.seguros||'',i.inquilino||'',i.vigencia||'',i.caucao?'Sim':'Não',i.plantas||'',String((i.files||[]).length)]);
+        let csv = '\uFEFF'+h.join(',')+'\n';
+        r.forEach(rw => { csv += rw.map(v => '"'+(v||'').replace(/"/g,'""')+'"').join(',')+'\n'; });
+        const b = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(b);
+        a.download = 'imoveis_exportados.csv';
+        a.click();
+        URL.revokeObjectURL(a.href);
+        mostrarToast('CSV exportado!', 'success');
+    }
+
+    renderLista();
+</script>
+</body>
+</html>
